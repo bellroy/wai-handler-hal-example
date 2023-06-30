@@ -43,7 +43,7 @@ common deps
 
 executable wai-handler-hal-example-hal
   import:         opts, deps
-  hs-source-dirs: src-hal
+  hs-source-dirs: exe/hal
   main-is:        Main.hs
   build-depends:
     , hal                      >=0.4.7 && <0.4.11 || >=1.0.0 && <1.1
@@ -53,7 +53,7 @@ executable wai-handler-hal-example-hal
 
 executable wai-handler-hal-example-warp
   import:         opts, deps
-  hs-source-dirs: src-warp
+  hs-source-dirs: exe/warp
   main-is:        Main.hs
   build-depends:
     , wai-handler-hal-example
