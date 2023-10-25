@@ -15,3 +15,32 @@ Two endpoints are provided:
 
 * `GET https://abcde12345.execute-api.us-east-1.amazonaws.com/prod/hoot` --- returns `{ "message": "hoot" }`
 * `GET https://abcde12345.execute-api.us-east-1.amazonaws.com/prod/greet?person=Roy` --- returns `{ "message": "Hello, Roy!" }`
+
+## Building
+
+In the `wai-handler-hal-cdk/runtime` directory, run `nix build
+.#packages.x86_64-linux` and wait a while. Nix will eventually create
+a `result` symlink containing the compressed bootstrap
+executable. From there, `npx cdk deploy` should deploy the example to
+AWS.
+
+## Hacking
+
+There is a development shell provided. Users on `x86_64-linux` can run
+`nix develop`, and then run `npm install` from within the
+`wai-handler-hal-cdk` subdirectory.
+
+## Other Targets
+
+Some people might prefer to deploy OCI Container Images to [Elastic
+Container Registry](https://aws.amazon.com/ecr/). There are additional
+flake outputs showing how to package Lambda binaries into container
+images:
+
+* `packages.x86_64-linux.container` is a standard container image
+  built atop Amazon's base image.
+* `packages.x86_64-linux.tiny-continer` is a minimal container image
+  consisting of [busybox](https://www.busybox.net/), Amazon's [AWS
+  Lambda Runtime Interface
+  Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator/),
+  and the bootstrap binary.

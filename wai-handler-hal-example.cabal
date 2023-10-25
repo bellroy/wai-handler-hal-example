@@ -21,7 +21,7 @@ extra-source-files:
   README.md
 
 tested-with:
-  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.2 || ==9.4.3
+  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.5 || ==9.4.5
 
 common opts
   default-language: Haskell2010
@@ -34,11 +34,11 @@ common opts
 
 common deps
   build-depends:
-    , aeson            >=1.5.6.0 && <1.6 || >=2.0 && <2.2
-    , base             >=4.12    && <4.18
+    , aeson            >=1.5.6.0 && <1.6  || >=2.0 && <2.3
+    , base             >=4.12    && <4.19
     , servant          >=0.18.2  && <0.21
     , servant-server   >=0.18.2  && <0.21
-    , text             ^>=1.2.3 || ^>=2.0
+    , text             ^>=1.2.3  || >=2.0 && <2.1  || ^>=2.1
     , wai-handler-hal
 
 executable wai-handler-hal-example-hal

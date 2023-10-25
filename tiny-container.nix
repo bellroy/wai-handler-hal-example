@@ -1,30 +1,20 @@
-# This file uses `streamLayeredImage` to build a minimal
+# This file uses `dockerTools.streamLayeredImage` to build a minimal
 # container. Instead of generating a tarball in the store,
 # `streamLayeredImage` generates a script that dumps the container to
-# stdout. After building, you'll want to do something like `./result |
-# docker load`, and then tag and push.
-{ sources ? import ../../nix/sources.nix { }
-, compiler-nix-name ? "ghc924"
-}:
-let
-  haskellNix = import sources."haskell.nix" { };
-  pkgs = haskellNix.pkgs;
-in
-pkgs.dockerTools.streamLayeredImage {
+# stdout.
+#
+# After you build the container from the flake using
+# `nix build .#tiny-container`, you can load the image by running
+# `./result | docker load` and then tag and push the container to your
+# registry.
+
+{ bootstrap, buildEnv, busybox, dockerTools, runCommandLocal, writeScript }:
+dockerTools.streamLayeredImage {
   name = "wai-handler-hal-example-tiny-container";
   tag = "latest";
 
   contents =
     let
-      bootstrap = import ./. { inherit sources compiler-nix-name; };
-
-      # We run a tiny shell script to decide whether we need to
-      # execute the runtime-interface-emulator. The simplest shell we
-      # can get is busybox, statically linked against musl.
-      busybox = pkgs.pkgsCross.musl64.busybox.override {
-        enableStatic = true;
-      };
-
       # Grab the runtime interface emulator from a GitHub release.
       runtimeInterfaceEmulator = builtins.fetchurl {
         url = "https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/download/v1.0/aws-lambda-rie";
@@ -33,7 +23,7 @@ pkgs.dockerTools.streamLayeredImage {
 
       # This is basically the same as /lambda-entrypoint.sh in a real
       # Amazon container image.
-      entrypoint = pkgs.writeScript "lambda-entrypoint.sh" ''
+      entrypoint = writeScript "lambda-entrypoint.sh" ''
         #!${busybox}/bin/sh
         if [ -z "''${AWS_LAMBDA_RUNTIME_API}" ]; then
           exec /usr/local/bin/aws-lambda-rie /var/runtime/bootstrap
@@ -42,7 +32,7 @@ pkgs.dockerTools.streamLayeredImage {
         fi
       '';
 
-      otherContents = pkgs.runCommandLocal "other-contents" { } ''
+      otherContents = runCommandLocal "other-contents" { } ''
         mkdir -p $out/usr/local/bin $out/var/runtime $out/var/task
         cp ${entrypoint} $out/lambda-entrypoint.sh
         cp ${runtimeInterfaceEmulator} $out/usr/local/bin/aws-lambda-rie
