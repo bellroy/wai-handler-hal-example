@@ -22,8 +22,8 @@
       };
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
-      project = pkgsMusl.haskell-nix.project {
-        compiler-nix-name = "ghc947";
+      project = pkgs: pkgs.haskell-nix.project {
+        compiler-nix-name = "ghc948";
         evalSystem = "x86_64-linux";
         src = pkgsLocal.haskell-nix.haskellLib.cleanGit {
           name = "wai-handler-hal-example";
@@ -42,7 +42,7 @@
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
       # deployment.
-      lambdaBinary = "${project.wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
+      lambdaBinary = "${(project pkgsMusl).wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
       bootstrap = pkgsLocal.runCommand "wai-handler-hal-example-runtime" { } ''
         mkdir $out
         ${pkgsLocal.upx}/bin/upx -9 -o $out/bootstrap ${lambdaBinary}
@@ -67,7 +67,8 @@
       };
 
       devShells.x86_64-linux.default =
-        project.shellFor {
+        (project pkgsLocal).shellFor {
+          withHoogle = false;
           buildInputs = with pkgsLocal; [
             haskellPackages.cabal-fmt
             nixpkgs-fmt
