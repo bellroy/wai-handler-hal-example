@@ -23,7 +23,7 @@
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
       project = pkgs: pkgs.haskell-nix.project {
-        compiler-nix-name = "ghc963";
+        compiler-nix-name = "ghc981";
         evalSystem = "x86_64-linux";
         src = pkgsLocal.haskell-nix.haskellLib.cleanGit {
           name = "wai-handler-hal-example";
