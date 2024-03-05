@@ -21,7 +21,7 @@ extra-source-files:
   README.md
 
 tested-with:
-  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.5 || ==9.4.5
+  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.5 || ==9.4.5 || ==9.6.3
 
 common opts
   default-language: Haskell2010
@@ -35,7 +35,7 @@ common opts
 common deps
   build-depends:
     , aeson            >=1.5.6.0 && <1.6  || >=2.0 && <2.3
-    , base             >=4.12    && <4.19
+    , base             >=4.12    && <4.20
     , servant          >=0.18.2  && <0.21
     , servant-server   >=0.18.2  && <0.21
     , text             ^>=1.2.3  || >=2.0 && <2.1  || ^>=2.1
@@ -46,7 +46,7 @@ executable wai-handler-hal-example-hal
   hs-source-dirs: exe/hal
   main-is:        Main.hs
   build-depends:
-    , hal                      >=0.4.7 && <0.4.11 || >=1.0.0 && <1.1
+    , hal                      >=0.4.7 && <0.4.11 || >=1.0.0 && <1.2
     , wai-handler-hal-example
 
   ghc-options:    -threaded
@@ -57,7 +57,7 @@ executable wai-handler-hal-example-warp
   main-is:        Main.hs
   build-depends:
     , wai-handler-hal-example
-    , warp                     ^>=3.3.14
+    , warp                     >=3.3.14 && <3.4
 
   ghc-options:    -threaded
 

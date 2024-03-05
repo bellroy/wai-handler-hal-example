@@ -23,7 +23,7 @@
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
       project = pkgs: pkgs.haskell-nix.project {
-        compiler-nix-name = "ghc948";
+        compiler-nix-name = "ghc963";
         evalSystem = "x86_64-linux";
         src = pkgsLocal.haskell-nix.haskellLib.cleanGit {
           name = "wai-handler-hal-example";
@@ -39,6 +39,16 @@
         }];
       };
 
+      devShells.x86_64-linux.default =
+        (project pkgsLocal).shellFor {
+          withHoogle = false;
+          buildInputs = with pkgsLocal; [
+            haskellPackages.cabal-fmt
+            nixpkgs-fmt
+            nodejs
+          ];
+        };
+
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
       # deployment.
@@ -47,8 +57,7 @@
         mkdir $out
         ${pkgsLocal.upx}/bin/upx -9 -o $out/bootstrap ${lambdaBinary}
       '';
-    in
-    {
+
       packages.x86_64-linux = {
         default = bootstrap;
         container = pkgsLocal.callPackage ./container.nix {
@@ -66,16 +75,21 @@
         };
       };
 
-      devShells.x86_64-linux.default =
-        (project pkgsLocal).shellFor {
-          withHoogle = false;
-          buildInputs = with pkgsLocal; [
-            haskellPackages.cabal-fmt
-            nixpkgs-fmt
-            nodejs
-          ];
-        };
-    };
+      hydraJobs = {
+        aggregate = pkgsLocal.runCommand "aggregate"
+          {
+            _hydraAggregate = true;
+            constituents = [
+              "devShells.x86_64-linux.default"
+              "packages.x86_64-linux.default"
+              "packages.x86_64-linux.container"
+              "packages.x86_64-linux.tiny-container"
+            ];
+          }
+          "touch $out";
+      } // devShells // packages;
+    in
+    { inherit devShells packages hydraJobs; };
 
   nixConfig = {
     allow-import-from-derivation = "true";

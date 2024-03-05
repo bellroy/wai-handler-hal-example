@@ -44,3 +44,13 @@ images:
   Lambda Runtime Interface
   Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator/),
   and the bootstrap binary.
+
+## Maintaining this Repo
+
+We don't provide `haskell-ci` in the development shell, in case people
+copying the flake don't want it. To regenerate the GitHub Actions
+workflow:
+
+```sh
+nix run nixpkgs#haskell-ci regenerate
+```
