@@ -76,6 +76,8 @@
       };
 
       hydraJobs = {
+        inherit devShells packages;
+
         aggregate = pkgsLocal.runCommand "aggregate"
           {
             _hydraAggregate = true;
@@ -87,7 +89,7 @@
             ];
           }
           "touch $out";
-      } // devShells // packages;
+      };
     in
     { inherit devShells packages hydraJobs; };
 
