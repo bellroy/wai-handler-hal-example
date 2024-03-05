@@ -1,0 +1,14 @@
+{
+  "wai-handler-hal-example": {
+    "enabled": 1,
+    "hidden": false,
+    "keepnr": 1,
+    "checkinterval": 300,
+    "schedulingshares": 100,
+    "description": "Development shell and bootstraps for wai-handler-hal-example repo",
+    "enableemail": false,
+    "emailoverride": "",
+    "type": 1,
+    "flake": "git+ssh://git@github.com/bellroy/wai-handler-hal-example"
+  }
+}
