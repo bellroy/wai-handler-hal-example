@@ -76,7 +76,7 @@
       };
 
       hydraJobs = {
-        aggregate = evalPkgs.runCommand "aggregate"
+        aggregate = pkgsLocal.runCommand "aggregate"
           {
             _hydraAggregate = true;
             constituents = [
