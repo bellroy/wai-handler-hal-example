@@ -12,14 +12,14 @@ The `cdk.json` file tells the CDK Toolkit how to execute the app.
 
 ## Quick deploy
 
-The project's `shell.nix` provides `npm` and `nodejs`, so run the
-following commands from inside a `nix-shell`:
+The project's flake provides `npm` and `nodejs`, so run the following
+commands from this directory, inside a `nix develop` shell:
 
 * `npm install`
 * `npm run cdk bootstrap` (only if you've never used CDK on your AWS
   account before)
-* `(cd runtime && nix build -f .)` (build the Lambda binary where CDK can
-  find it)
+* `(cd runtime && nix build .#packages.x86_64-linux.default)` (build
+  the Lambda binary where CDK can find it)
 * `npm run cdk deploy` (deploy to AWS)
 
 To tear down the stack, run `npm run cdk destroy`. If you don't plan
@@ -29,19 +29,22 @@ resources (like S3 buckets).
 
 ## Building the binary
 
-`runtime/default.nix` is a Nix expression to build the
-statically-linked `hal` binary, and the CDK script is configured to
-expect it at `runtime/result/bootstrap`. There are two other example
-`.nix` files in that directory, if you want to explore deploying
-Lambda functions using OCI images on
-[ECR](https://aws.amazon.com/ecr/):
+The default package built by this flake is a statically-linked `hal`
+binary, and the CDK script is configured to expect it at
+`runtime/result/bootstrap`. There are two other example `.nix` files
+in the repository root, if you want to explore deploying Lambda
+functions using OCI images on [ECR](https://aws.amazon.com/ecr/):
 
-* `runtime/container.nix` builds a container from Amazon's
+* `/container.nix` builds a container from Amazon's
   [`al2`](https://hub.docker.com/r/amazon/aws-lambda-provided/tags)
   container. It places the statically-linked binary into the correct
-  location in the container filesystem. Load with `docker load <
-  result`.
-* `runtime/tiny-container.nix` builds a minimal container from four
+  location in the container filesystem. This uses
+  [`dockerTools.buildImage`](https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-buildImage)
+  to build the container image as a file in the nix store, which you
+  can load with `docker load < result`. This is the simplest way to
+  build a container image, but `dockerTools.streamLayeredImage` is
+  generally better.
+* `/tiny-container.nix` builds a minimal container from just four
   parts:
   - The statically-linked Haskell binary;
   - The [Lambda Runtime Interface
@@ -50,7 +53,12 @@ Lambda functions using OCI images on
     not running in the AWS Cloud; and
   - A statically-linked `busybox`, to provide a minimal shell to run
     the entrypoint script.
-  Load with `./result | docker load`
+
+  This uses
+  [`dockerTools.streamLayeredImage`](https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-streamLayeredImage)
+  to avoid adding the final image to the nix store, saving space by
+  emitting a script instead. Load the image into Docker with `./result
+  | docker load`
 
 ### Thoughts on the container format and the Lambda Runtime Interface Emulator
 
