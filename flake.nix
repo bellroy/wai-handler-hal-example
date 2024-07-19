@@ -40,6 +40,7 @@
         (project pkgsLocal).shellFor {
           withHoogle = false;
           buildInputs = with pkgsLocal; [
+            haskell-ci
             haskellPackages.cabal-fmt
             nixpkgs-fmt
             nodejs
