@@ -25,10 +25,7 @@
       project = pkgs: pkgs.haskell-nix.project {
         compiler-nix-name = "ghc96";
         evalSystem = "x86_64-linux";
-        src = pkgsLocal.haskell-nix.haskellLib.cleanGit {
-          name = "wai-handler-hal-example";
-          src = ./.;
-        };
+        src = ./.;
 
         # This is usually fine, but can "occasionally cause breakage":
         # https://input-output-hk.github.io/haskell.nix/troubleshooting/#why-does-my-executable-depend-on-ghcgcc
