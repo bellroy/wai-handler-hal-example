@@ -47,15 +47,26 @@
         }];
       };
 
+      checks.x86_64-linux.pre-commit-check =
+        inputs.git-hooks.lib.x86_64-linux.run {
+        src = ./.;
+        hooks = {
+          cabal-fmt.enable = true;
+          hlint.enable = true;
+          nixpkgs-fmt.enable = true;
+          ormolu.enable = true;
+        };
+      };
       devShells.x86_64-linux.default =
         (project pkgsLocal).shellFor {
+          inherit (checks.x86_64-linux.pre-commit-check) shellHook;
           withHoogle = false;
           buildInputs = with pkgsLocal; [
             haskell-ci
             haskellPackages.cabal-fmt
             nixpkgs-fmt
             nodejs
-          ];
+          ] ++ checks.x86_64-linux.pre-commit-check.enabledPackages;
         };
 
       # Compress a binary and put it in a directory under the name
@@ -100,7 +111,7 @@
           "touch $out";
       };
     in
-    { inherit devShells packages hydraJobs; };
+    { inherit checks devShells packages hydraJobs; };
 
   nixConfig = {
     allow-import-from-derivation = "true";
