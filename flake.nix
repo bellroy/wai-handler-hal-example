@@ -49,14 +49,26 @@
 
       checks.x86_64-linux.pre-commit-check =
         inputs.git-hooks.lib.x86_64-linux.run {
-        src = ./.;
-        hooks = {
-          cabal-fmt.enable = true;
-          hlint.enable = true;
-          nixpkgs-fmt.enable = true;
-          ormolu.enable = true;
+          src = ./.;
+          hooks = {
+            cabal-fmt.enable = true;
+            hlint.enable = true;
+            nixpkgs-fmt.enable = true;
+            ormolu.enable = true;
+          };
         };
-      };
+
+      # haskell-ci no longer publishes releases to Hackage. Since we
+      # need haskell.nix anyway, get a fresh copy from there.
+      haskell-ci =
+        let
+          project = pkgsLocal.haskell-nix.project {
+            compiler-nix-name = "ghc96";
+            src = inputs.haskell-ci;
+          };
+        in
+        project.haskell-ci.components.exes.haskell-ci;
+
       devShells.x86_64-linux.default =
         (project pkgsLocal).shellFor {
           inherit (checks.x86_64-linux.pre-commit-check) shellHook;
