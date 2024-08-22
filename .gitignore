@@ -1,3 +1,4 @@
+.pre-commit-config.yaml
 *.js
 !jest.config.js
 *.d.ts
@@ -9,3 +10,5 @@ cdk.out
 
 dist/
 dist-newstyle/
+
+wai-handler-hal-cdk/runtime/result

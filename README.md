@@ -18,11 +18,9 @@ Two endpoints are provided:
 
 ## Building
 
-In the `wai-handler-hal-cdk/runtime` directory, run `nix build
-.#packages.x86_64-linux` and wait a while. Nix will eventually create
-a `result` symlink containing the compressed bootstrap
-executable. From there, `npx cdk deploy` should deploy the example to
-AWS.
+Follow the instructions in the `wai-handler-hal-cdk` subdirectory to
+build the deployment package and deploy it to AWS using [AWS CDK
+v2](https://docs.aws.amazon.com/cdk/v2/guide/home.html).
 
 ## Hacking
 
@@ -44,13 +42,3 @@ images:
   Lambda Runtime Interface
   Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator/),
   and the bootstrap binary.
-
-## Maintaining this Repo
-
-We don't provide `haskell-ci` in the development shell, in case people
-copying the flake don't want it. To regenerate the GitHub Actions
-workflow:
-
-```sh
-nix run nixpkgs#haskell-ci regenerate
-```
