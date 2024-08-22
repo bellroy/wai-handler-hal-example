@@ -3,7 +3,18 @@
 
   inputs = {
     nixpkgs.follows = "haskell-nix/nixpkgs-unstable";
+    haskell-ci = {
+      url = "github:haskell-ci/haskell-ci";
+      flake = false;
+    };
     haskell-nix.url = "github:input-output-hk/haskell.nix";
+    git-hooks = {
+      inputs = {
+        flake-compat.follows = "haskell-nix/flake-compat";
+        nixpkgs.follows = "nixpkgs";
+      };
+      url = "github:cachix/git-hooks.nix";
+    };
   };
 
   outputs = inputs:
