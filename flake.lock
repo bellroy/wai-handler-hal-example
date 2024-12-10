@@ -180,22 +180,6 @@
         "type": "github"
       }
     },
-    "haskell-ci": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1733162672,
-        "narHash": "sha256-sM4nbl1CYojEcqah7Hl9x3p8ilr0iafVOQmNglRjEtI=",
-        "owner": "haskell-ci",
-        "repo": "haskell-ci",
-        "rev": "ec21b78d581f311e55dcd5326c9459a0bdc30b76",
-        "type": "github"
-      },
-      "original": {
-        "owner": "haskell-ci",
-        "repo": "haskell-ci",
-        "type": "github"
-      }
-    },
     "haskell-nix": {
       "inputs": {
         "HTTP": "HTTP",
@@ -724,7 +708,6 @@
     "root": {
       "inputs": {
         "git-hooks": "git-hooks",
-        "haskell-ci": "haskell-ci",
         "haskell-nix": "haskell-nix",
         "nixpkgs": [
           "haskell-nix",
