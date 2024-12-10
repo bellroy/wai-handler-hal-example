@@ -3,10 +3,6 @@
 
   inputs = {
     nixpkgs.follows = "haskell-nix/nixpkgs-unstable";
-    haskell-ci = {
-      url = "github:haskell-ci/haskell-ci";
-      flake = false;
-    };
     haskell-nix.url = "github:input-output-hk/haskell.nix";
     git-hooks = {
       inputs = {
@@ -58,23 +54,11 @@
           };
         };
 
-      # haskell-ci no longer publishes releases to Hackage. Since we
-      # need haskell.nix anyway, get a fresh copy from there.
-      haskell-ci =
-        let
-          project = pkgsLocal.haskell-nix.project {
-            compiler-nix-name = "ghc96";
-            src = inputs.haskell-ci;
-          };
-        in
-        project.haskell-ci.components.exes.haskell-ci;
-
       devShells.x86_64-linux.default =
         (project pkgsLocal).shellFor {
           inherit (checks.x86_64-linux.pre-commit-check) shellHook;
           withHoogle = false;
           buildInputs = with pkgsLocal; [
-            haskell-ci
             haskellPackages.cabal-fmt
             nixpkgs-fmt
             nodejs
