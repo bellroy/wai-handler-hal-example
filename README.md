@@ -42,6 +42,3 @@ images:
   Lambda Runtime Interface
   Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator/),
   and the bootstrap binary.
-
-## Empty commit
-1
