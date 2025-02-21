@@ -1,0 +1,16 @@
+jobs:
+  check-status:
+    name: "Check status"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - env:
+          EVENT_JSON: ${{ toJSON(some.var) }}
+        run: |
+          printf '%s\n' "$EVENT_JSON" > event.json
+          cat event.json
+          echo "$DESCRIPTION"
+          echo "All checks completed"
+name: Status check
+on:
+  check_suite:
+    types: [completed]
