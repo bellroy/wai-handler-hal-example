@@ -4,7 +4,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     steps:
       - env:
-          EVENT_JSON: ${{ toJSON(some.var) }}
+          EVENT_JSON: ${{ toJSON(github.event) }}
         run: |
           printf '%s\n' "$EVENT_JSON" > event.json
           cat event.json
