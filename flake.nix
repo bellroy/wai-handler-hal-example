@@ -30,7 +30,7 @@
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
       project = pkgs: pkgs.haskell-nix.project {
-        compiler-nix-name = "ghc96";
+        compiler-nix-name = "ghc98";
         evalSystem = "x86_64-linux";
         src = ./.;
 
