@@ -5,7 +5,11 @@
 # After you build the container from the flake using
 # `nix build .#container`, you can load the image by running
 # `docker load < ./result`.
-{ bootstrap, buildEnv, dockerTools }:
+{
+  bootstrap,
+  buildEnv,
+  dockerTools,
+}:
 dockerTools.buildImage {
   name = "wai-handler-hal-example-container";
   tag = "latest";

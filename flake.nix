@@ -82,18 +82,14 @@
 
       packages.x86_64-linux = {
         default = bootstrap;
-        container = pkgsLocal.callPackage ./container.nix {
-          inherit bootstrap;
-        };
+        container = pkgsLocal.callPackage ./container.nix { inherit bootstrap; };
         tiny-container = pkgsLocal.callPackage ./tiny-container.nix {
           inherit bootstrap;
 
           # We run a tiny shell script to decide whether we need to
           # execute the runtime-interface-emulator. The simplest shell
           # we can get is busybox, statically linked against musl.
-          busybox = pkgsMusl.busybox.override {
-            enableStatic = true;
-          };
+          busybox = pkgsMusl.busybox.override { enableStatic = true; };
         };
       };
 
