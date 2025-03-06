@@ -8,7 +8,14 @@
 # `./result | docker load` and then tag and push the container to your
 # registry.
 
-{ bootstrap, buildEnv, busybox, dockerTools, runCommandLocal, writeScript }:
+{
+  bootstrap,
+  buildEnv,
+  busybox,
+  dockerTools,
+  runCommandLocal,
+  writeScript,
+}:
 dockerTools.streamLayeredImage {
   name = "wai-handler-hal-example-tiny-container";
   tag = "latest";
@@ -40,7 +47,10 @@ dockerTools.streamLayeredImage {
         cp ${bootstrap}/bootstrap $out/var/runtime/bootstrap
       '';
     in
-    [ busybox otherContents ];
+    [
+      busybox
+      otherContents
+    ];
 
   # Config is unchanged from `container.nix`; there is no
   # technical requirement for EntryPoint or WorkingDir to have these

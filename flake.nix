@@ -13,7 +13,8 @@
     };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       # This is all hard-coded towards building x86_64-linux bootstrap
       # binaries. Extending this to support cross-compilation to
@@ -29,41 +30,46 @@
       };
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
-      project = pkgs: pkgs.haskell-nix.project {
-        compiler-nix-name = "ghc96";
-        evalSystem = "x86_64-linux";
-        src = ./.;
-
-        # This is usually fine, but can "occasionally cause breakage":
-        # https://input-output-hk.github.io/haskell.nix/troubleshooting/#why-does-my-executable-depend-on-ghcgcc
-        modules = [{
-          # Set this only for packages providing the final binaries that
-          # go to AWS, unless you want to rebuild the entire universe.
-          packages.wai-handler-hal-example.dontStrip = false;
-        }];
-      };
-
-      checks.x86_64-linux.pre-commit-check =
-        inputs.git-hooks.lib.x86_64-linux.run {
+      project =
+        pkgs:
+        pkgs.haskell-nix.project {
+          compiler-nix-name = "ghc98";
+          evalSystem = "x86_64-linux";
           src = ./.;
-          hooks = {
-            cabal-fmt.enable = true;
-            hlint.enable = true;
-            nixpkgs-fmt.enable = true;
-            ormolu.enable = true;
-          };
+
+          # This is usually fine, but can "occasionally cause breakage":
+          # https://input-output-hk.github.io/haskell.nix/troubleshooting/#why-does-my-executable-depend-on-ghcgcc
+          modules = [
+            {
+              # Set this only for packages providing the final binaries that
+              # go to AWS, unless you want to rebuild the entire universe.
+              packages.wai-handler-hal-example.dontStrip = false;
+            }
+          ];
         };
 
-      devShells.x86_64-linux.default =
-        (project pkgsLocal).shellFor {
-          inherit (checks.x86_64-linux.pre-commit-check) shellHook;
-          withHoogle = false;
-          buildInputs = with pkgsLocal; [
+      checks.x86_64-linux.pre-commit-check = inputs.git-hooks.lib.x86_64-linux.run {
+        src = ./.;
+        hooks = {
+          cabal-fmt.enable = true;
+          hlint.enable = true;
+          nixfmt-rfc-style.enable = true;
+          ormolu.enable = true;
+        };
+      };
+
+      devShells.x86_64-linux.default = (project pkgsLocal).shellFor {
+        inherit (checks.x86_64-linux.pre-commit-check) shellHook;
+        withHoogle = false;
+        buildInputs =
+          with pkgsLocal;
+          [
             haskellPackages.cabal-fmt
             nixpkgs-fmt
             nodejs
-          ] ++ checks.x86_64-linux.pre-commit-check.enabledPackages;
-        };
+          ]
+          ++ checks.x86_64-linux.pre-commit-check.enabledPackages;
+      };
 
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
@@ -76,43 +82,43 @@
 
       packages.x86_64-linux = {
         default = bootstrap;
-        container = pkgsLocal.callPackage ./container.nix {
-          inherit bootstrap;
-        };
+        container = pkgsLocal.callPackage ./container.nix { inherit bootstrap; };
         tiny-container = pkgsLocal.callPackage ./tiny-container.nix {
           inherit bootstrap;
 
           # We run a tiny shell script to decide whether we need to
           # execute the runtime-interface-emulator. The simplest shell
           # we can get is busybox, statically linked against musl.
-          busybox = pkgsMusl.busybox.override {
-            enableStatic = true;
-          };
+          busybox = pkgsMusl.busybox.override { enableStatic = true; };
         };
       };
 
       hydraJobs = {
         inherit devShells packages;
 
-        aggregate = pkgsLocal.runCommand "aggregate"
-          {
-            _hydraAggregate = true;
-            constituents = [
-              "devShells.x86_64-linux.default"
-              "packages.x86_64-linux.default"
-              "packages.x86_64-linux.container"
-              "packages.x86_64-linux.tiny-container"
-            ];
-          }
-          "touch $out";
+        aggregate = pkgsLocal.runCommand "aggregate" {
+          _hydraAggregate = true;
+          constituents = [
+            "devShells.x86_64-linux.default"
+            "packages.x86_64-linux.default"
+            "packages.x86_64-linux.container"
+            "packages.x86_64-linux.tiny-container"
+          ];
+        } "touch $out";
       };
     in
-    { inherit checks devShells packages hydraJobs; };
+    {
+      inherit
+        checks
+        devShells
+        packages
+        hydraJobs
+        ;
+    };
 
   nixConfig = {
     allow-import-from-derivation = "true";
     extra-substituters = [ "https://cache.iog.io" ];
-    extra-trusted-public-keys =
-      [ "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" ];
+    extra-trusted-public-keys = [ "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" ];
   };
 }
