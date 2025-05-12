@@ -16,7 +16,11 @@
   outputs =
     inputs:
     let
-      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      supportedSystems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
       forAllSystems = inputs.nixpkgs.lib.genAttrs supportedSystems;
 
       # This is all hard-coded towards building x86_64-linux bootstrap
@@ -26,11 +30,13 @@
       # Interested readers may also consider adding native
       # aarch64-linux support, which cross-compiles from aarch64-linux
       # to musl, avoiding the cross-architecture troubles.
-      pkgsFor = system: import inputs.nixpkgs {
-        inherit system;
-        inherit (inputs.haskell-nix) config;
-        overlays = [ inputs.haskell-nix.overlay ];
-      };
+      pkgsFor =
+        system:
+        import inputs.nixpkgs {
+          inherit system;
+          inherit (inputs.haskell-nix) config;
+          overlays = [ inputs.haskell-nix.overlay ];
+        };
 
       pkgsLocal = pkgsFor "x86_64-linux";
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
@@ -53,30 +59,31 @@
           ];
         };
 
-      checks.x86_64-linux.pre-commit-check = inputs.git-hooks.lib.x86_64-linux.run {
-        src = ./.;
-        hooks = {
-          cabal-fmt.enable = true;
-          hlint.enable = true;
-          nixfmt-rfc-style.enable = true;
-          ormolu.enable = true;
-        };
-      };
+      checks = forAllSystems (
+        system:
+        let
+          pre-commit-check = inputs.git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              cabal-fmt.enable = true;
+              hlint.enable = true;
+              nixfmt-rfc-style.enable = true;
+              ormolu.enable = true;
+            };
+          };
+        in
+        {
+          inherit pre-commit-check;
+        }
+      );
 
-      devShells = forAllSystems (system:
+      devShells = forAllSystems (
+        system:
         let
           pkgs = pkgsFor system;
           project = mkProject pkgs;
-
-          # Only x86_64-linux has pre-commit checks defined
-          shellHook = if system == "x86_64-linux"
-                      then checks.x86_64-linux.pre-commit-check.shellHook
-                      else "";
-
-          # Only x86_64-linux has pre-commit packages
-          preCommitPackages = if system == "x86_64-linux"
-                             then checks.x86_64-linux.pre-commit-check.enabledPackages
-                             else [];
+          shellHook = checks.${system}.pre-commit-check.shellHook;
+          preCommitPackages = checks.${system}.pre-commit-check.enabledPackages;
         in
         {
           default = project.shellFor {
@@ -91,7 +98,8 @@
               ]
               ++ preCommitPackages;
           };
-        });
+        }
+      );
 
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
