@@ -16,6 +16,13 @@
   outputs =
     inputs:
     let
+      supportedSystems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      forAllSystems = inputs.nixpkgs.lib.genAttrs supportedSystems;
+
       # This is all hard-coded towards building x86_64-linux bootstrap
       # binaries. Extending this to support cross-compilation to
       # aarch64-linux is left as an exercise to the reader.
@@ -23,14 +30,18 @@
       # Interested readers may also consider adding native
       # aarch64-linux support, which cross-compiles from aarch64-linux
       # to musl, avoiding the cross-architecture troubles.
-      pkgsLocal = import inputs.nixpkgs {
-        inherit (inputs.haskell-nix) config;
-        system = "x86_64-linux";
-        overlays = [ inputs.haskell-nix.overlay ];
-      };
+      pkgsFor =
+        system:
+        import inputs.nixpkgs {
+          inherit system;
+          inherit (inputs.haskell-nix) config;
+          overlays = [ inputs.haskell-nix.overlay ];
+        };
+
+      pkgsLocal = pkgsFor "x86_64-linux";
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
-      project =
+      mkProject =
         pkgs:
         pkgs.haskell-nix.project {
           compiler-nix-name = "ghc98";
@@ -48,33 +59,41 @@
           ];
         };
 
-      checks.x86_64-linux.pre-commit-check = inputs.git-hooks.lib.x86_64-linux.run {
-        src = ./.;
-        hooks = {
-          cabal-fmt.enable = true;
-          hlint.enable = true;
-          nixfmt-rfc-style.enable = true;
-          ormolu.enable = true;
+      checks = forAllSystems (system: {
+        pre-commit-check = inputs.git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            cabal-fmt.enable = true;
+            hlint.enable = true;
+            nixfmt-rfc-style.enable = true;
+            ormolu.enable = true;
+          };
         };
-      };
+      });
 
-      devShells.x86_64-linux.default = (project pkgsLocal).shellFor {
-        inherit (checks.x86_64-linux.pre-commit-check) shellHook;
-        withHoogle = false;
-        buildInputs =
-          with pkgsLocal;
-          [
-            haskellPackages.cabal-fmt
-            nixpkgs-fmt
-            nodejs
-          ]
-          ++ checks.x86_64-linux.pre-commit-check.enabledPackages;
-      };
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+          project = mkProject pkgs;
+        in
+        {
+          default = project.shellFor {
+            inherit (checks.${system}.pre-commit-check) shellHook;
+            withHoogle = false;
+            buildInputs = with pkgs; [
+              haskellPackages.cabal-fmt
+              nixpkgs-fmt
+              nodejs
+            ];
+          };
+        }
+      );
 
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
       # deployment.
-      lambdaBinary = "${(project pkgsMusl).wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
+      lambdaBinary = "${(mkProject pkgsMusl).wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
       bootstrap = pkgsLocal.runCommand "wai-handler-hal-example-runtime" { } ''
         mkdir $out
         ${pkgsLocal.upx}/bin/upx -9 -o $out/bootstrap ${lambdaBinary}
