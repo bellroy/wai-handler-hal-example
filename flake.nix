@@ -35,7 +35,7 @@
       pkgsLocal = pkgsFor "x86_64-linux";
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
-      project =
+      mkProject =
         pkgs:
         pkgs.haskell-nix.project {
           compiler-nix-name = "ghc98";
@@ -66,7 +66,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor system;
-          proj = project pkgs;
+          project = mkProject pkgs;
 
           # Only x86_64-linux has pre-commit checks defined
           shellHook = if system == "x86_64-linux"
@@ -79,7 +79,7 @@
                              else [];
         in
         {
-          default = proj.shellFor {
+          default = project.shellFor {
             inherit shellHook;
             withHoogle = false;
             buildInputs =
@@ -96,7 +96,7 @@
       # Compress a binary and put it in a directory under the name
       # `bootstrap`; CDK is smart enough to zip the directory up for
       # deployment.
-      lambdaBinary = "${(project pkgsMusl).wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
+      lambdaBinary = "${(mkProject pkgsMusl).wai-handler-hal-example.components.exes.wai-handler-hal-example-hal}/bin/wai-handler-hal-example-hal";
       bootstrap = pkgsLocal.runCommand "wai-handler-hal-example-runtime" { } ''
         mkdir $out
         ${pkgsLocal.upx}/bin/upx -9 -o $out/bootstrap ${lambdaBinary}
