@@ -59,44 +59,33 @@
           ];
         };
 
-      checks = forAllSystems (
-        system:
-        let
-          pre-commit-check = inputs.git-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = {
-              cabal-fmt.enable = true;
-              hlint.enable = true;
-              nixfmt-rfc-style.enable = true;
-              ormolu.enable = true;
-            };
+      checks = forAllSystems (system: {
+        pre-commit-check = inputs.git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            cabal-fmt.enable = true;
+            hlint.enable = true;
+            nixfmt-rfc-style.enable = true;
+            ormolu.enable = true;
           };
-        in
-        {
-          inherit pre-commit-check;
-        }
-      );
+        };
+      });
 
       devShells = forAllSystems (
         system:
         let
           pkgs = pkgsFor system;
           project = mkProject pkgs;
-          shellHook = checks.${system}.pre-commit-check.shellHook;
-          preCommitPackages = checks.${system}.pre-commit-check.enabledPackages;
         in
         {
           default = project.shellFor {
-            inherit shellHook;
+            inherit (checks.${system}.pre-commit-check) shellHook;
             withHoogle = false;
-            buildInputs =
-              with pkgs;
-              [
-                haskellPackages.cabal-fmt
-                nixpkgs-fmt
-                nodejs
-              ]
-              ++ preCommitPackages;
+            buildInputs = with pkgs; [
+              haskellPackages.cabal-fmt
+              nixpkgs-fmt
+              nodejs
+            ];
           };
         }
       );
