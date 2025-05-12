@@ -18,7 +18,7 @@
     let
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = inputs.nixpkgs.lib.genAttrs supportedSystems;
-      
+
       # This is all hard-coded towards building x86_64-linux bootstrap
       # binaries. Extending this to support cross-compilation to
       # aarch64-linux is left as an exercise to the reader.
@@ -31,7 +31,7 @@
         inherit (inputs.haskell-nix) config;
         overlays = [ inputs.haskell-nix.overlay ];
       };
-      
+
       pkgsLocal = pkgsFor "x86_64-linux";
       pkgsMusl = pkgsLocal.pkgsCross.musl64;
 
@@ -67,12 +67,12 @@
         let
           pkgs = pkgsFor system;
           proj = project pkgs;
-          
+
           # Only x86_64-linux has pre-commit checks defined
           shellHook = if system == "x86_64-linux"
                       then checks.x86_64-linux.pre-commit-check.shellHook
                       else "";
-                      
+
           # Only x86_64-linux has pre-commit packages
           preCommitPackages = if system == "x86_64-linux"
                              then checks.x86_64-linux.pre-commit-check.enabledPackages
@@ -136,7 +136,7 @@
         packages
         hydraJobs
         ;
-        
+
       # Provide backward compatibility with the old format
       devShell = forAllSystems (system: devShells.${system}.default);
     };
