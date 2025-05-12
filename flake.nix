@@ -136,9 +136,6 @@
         packages
         hydraJobs
         ;
-
-      # Provide backward compatibility with the old format
-      devShell = forAllSystems (system: devShells.${system}.default);
     };
 
   nixConfig = {
