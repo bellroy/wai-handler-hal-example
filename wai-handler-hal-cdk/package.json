@@ -15,15 +15,15 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^2.0.0-rc.1",
-    "@types/node": "22.7.5",
-    "aws-cdk-lib": "^2.177.0",
-    "cdk": "^2.0.0-rc.1",
-    "ts-node": "^10.0.0",
-    "typescript": "^5.0.0"
+    "@aws-cdk/assert": "^2.68.0",
+    "@types/node": "24.0.10",
+    "aws-cdk-lib": "^2.204.0",
+    "cdk": "^2.1020.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "constructs": "^10.0.0",
-    "source-map-support": "^0.5.20"
+    "constructs": "^10.4.2",
+    "source-map-support": "^0.5.21"
   }
 }
