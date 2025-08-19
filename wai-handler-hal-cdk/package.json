@@ -16,11 +16,11 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
-    "@types/node": "24.0.10",
-    "aws-cdk-lib": "^2.204.0",
-    "cdk": "^2.1020.2",
+    "@types/node": "24.3.0",
+    "aws-cdk-lib": "^2.211.0",
+    "cdk": "^2.1025.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "constructs": "^10.4.2",
