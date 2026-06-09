@@ -83,6 +83,7 @@
             withHoogle = false;
             buildInputs = with pkgs; [
               haskellPackages.cabal-fmt
+              haskellPackages.cabal-install
               nixpkgs-fmt
               nodejs
             ];
