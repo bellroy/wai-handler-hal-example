@@ -1,5 +1,15 @@
 # CDK TypeScript example for `wai-handler-hal`
 
+> **Note:** This is a point-in-time example, current as of June 2026,
+> and isn't actively maintained. If you're starting a new project,
+> consider the [AWS Lambda Web Adapter](https://github.com/awslabs/aws-lambda-web-adapter)
+> instead of `wai-handler-hal`/`hal` — it lets you deploy a plain
+> `warp` server to Lambda (as a
+> [container image](https://github.com/awslabs/aws-lambda-web-adapter#for-new-container-image-based-lambda-functions)
+> or via a
+> [Lambda Layer](https://github.com/awslabs/aws-lambda-web-adapter#for-zip-package-lambda-functions))
+> without needing a Lambda-specific request/response shim.
+
 This is a simple CDK project that deploys a Lambda based on
 `wai-handler-hal` to serve an entire API Gateway REST API.
 
